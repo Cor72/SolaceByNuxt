@@ -3,18 +3,17 @@
     
     <!-- ==================== 1. 顶部导航栏 ==================== -->
     <!-- 添加 head-hidden 类来控制隐藏 -->
-    <header class="top-nav" :class="{ 'head-hidden': !isHeaderVisible }">
+    <!-- <header class="top-nav" :class="{ 'head-hidden': !isHeaderVisible }">
       <div class="nav-inner">
         <div class="nav-content">
           <span class="nav-title">A Cup of Tea</span>
         </div>
-        
-        <!-- 右侧：可以放首页链接等 -->
+
         <div class="nav-links">
           <nuxt-link to="/">返回首页</nuxt-link>
         </div>
       </div>
-    </header>
+    </header> -->
 
     <!-- ==================== 2. 主体区域 ==================== -->
     <div class="main-container">
@@ -69,39 +68,41 @@ const toc = computed(() => {
   return article.value?.body?.toc?.links || []
 })
 
-// 3. 滚动监听逻辑 (顶部隐藏 & 目录高亮)
 const isHeaderVisible = ref(true)
 const activeId = ref('')
 let lastScrollY = 0
+let ticking = false
 
 const handleScroll = () => {
-  const currentScrollY = window.scrollY
+  if (ticking) return
+  ticking = true
 
-  // (1) 顶部导航栏隐藏逻辑
-  // 如果向下滑动超过 100px 且比上次位置低，则隐藏
-  if (currentScrollY > lastScrollY && currentScrollY > 100) {
-    isHeaderVisible.value = false
-  } else {
-    isHeaderVisible.value = true
-  }
-  lastScrollY = currentScrollY
+  requestAnimationFrame(() => {
+    const currentScrollY = window.scrollY
 
-  // (2) 目录高亮逻辑 (简单版：检测哪个标题在视口内)
-  const headings = document.querySelectorAll('article h1, article h2, article h3')
-  let currentActive = ''
-  
-  headings.forEach(heading => {
-    // 如果标题顶部位置距离视口顶部小于 150px
-    if (heading.getBoundingClientRect().top <= 150) {
-      currentActive = heading.getAttribute('id')
+    if (currentScrollY > 100 && currentScrollY > lastScrollY + 5) {
+      isHeaderVisible.value = false
+    } else if (currentScrollY < lastScrollY - 5) {
+      isHeaderVisible.value = true
     }
+    lastScrollY = currentScrollY
+
+    const headings = document.querySelectorAll('article h1, article h2, article h3')
+    let currentActive = ''
+
+    headings.forEach(heading => {
+      if (heading.getBoundingClientRect().top <= 150) {
+        currentActive = heading.getAttribute('id')
+      }
+    })
+    activeId.value = currentActive
+
+    ticking = false
   })
-  activeId.value = currentActive
 }
 
-// 挂载和卸载监听器
 onMounted(() => {
-  window.addEventListener('scroll', handleScroll)
+  window.addEventListener('scroll', handleScroll, { passive: true })
 })
 
 onUnmounted(() => {
@@ -110,6 +111,21 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
+/* --- 背景样式 --- */
+.blog-layout {
+  min-height: 100vh;
+  background-image: url('/top/pageground.jpg');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  position: relative;
+}
+
+.blog-layout > * {
+  position: relative;
+  z-index: 1;
+}
+
 /* --- 1. 顶部导航栏样式 --- */
 .top-nav {
   position: fixed;
@@ -117,11 +133,12 @@ onUnmounted(() => {
   left: 0;
   width: 100%;
   height: 60px;
-  background-color: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(10px); /* 毛玻璃效果 */
-  border-bottom: 1px solid #eee;
+  background: linear-gradient(135deg, rgba(255, 182, 193, 0.95), rgba(173, 216, 230, 0.95));
+  backdrop-filter: blur(15px);
+  border-bottom: none;
+  box-shadow: 0 2px 20px rgba(255, 182, 193, 0.3);
   z-index: 1000;
-  transition: transform 0.3s ease-in-out;
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
   align-items: center;
   padding: 0 40px;
@@ -134,10 +151,10 @@ onUnmounted(() => {
 
 .nav-inner {
   width: 100%;
-  max-width: 1400px; /* 限制最大宽度，和下面内容对齐 */
+  max-width: 1400px;
   margin: 0 auto;
   display: flex;
-  justify-content: space-between; /* 左右分布 */
+  justify-content: space-between;
   align-items: center;
 }
 
@@ -161,33 +178,45 @@ onUnmounted(() => {
 
 /* --- 2. 主体布局样式 --- */
 .main-container {
-  /* 顶部留出导航栏的高度 */
-  margin-top: 60px;
-  /* 开启 Flex 布局 */
+  padding-top: 40px;
   display: flex;
-  max-width: 1400px;
+  max-width: 1200px;
   margin-left: auto;
   margin-right: auto;
-  padding: 40px 20px;
+  padding: 40px 80px;
+  gap: 40px;
 }
 
 /* --- 左侧目录样式 --- */
 .toc-aside {
-  width: 250px;
-  /* 固定定位，跟随滚动 */
+  width: 240px;
   position: sticky;
-  top: 100px; /* 距离顶部的距离 */
+  top: 40px;
   height: fit-content;
-  flex-shrink: 0; /* 不被压缩 */
-  padding-right: 20px;
-  border-right: 1px solid #eee;
+  flex-shrink: 0;
+  padding: 24px 20px;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 182, 193, 0.3);
+  box-shadow: 0 8px 32px rgba(255, 182, 193, 0.1);
 }
 
 .toc-title {
-  font-weight: bold;
+  font-weight: 700;
   font-size: 1rem;
-  margin-bottom: 15px;
+  margin-bottom: 20px;
   color: #333;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid rgba(255, 182, 193, 0.3);
+}
+
+.toc-title::before {
+  content: '✿';
+  font-size: 1.1rem;
 }
 
 .toc-list {
@@ -197,7 +226,7 @@ onUnmounted(() => {
 }
 
 .toc-list li {
-  margin-bottom: 10px;
+  margin-bottom: 4px;
 }
 
 .toc-list a {
@@ -205,58 +234,88 @@ onUnmounted(() => {
   text-decoration: none;
   font-size: 0.9rem;
   display: block;
-  padding: 4px 0;
-  border-left: 2px solid transparent;
-  padding-left: 10px;
-  transition: all 0.2s;
+  padding: 10px 14px;
+  border-radius: 10px;
+  transition: all 0.3s ease;
+  border-left: 3px solid transparent;
 }
 
 .toc-list a:hover {
-  color: #000;
+  color: #ff6b9d;
+  background: linear-gradient(90deg, rgba(255, 182, 193, 0.15), transparent);
+  border-left-color: rgba(255, 182, 193, 0.5);
+  transform: translateX(4px);
 }
 
 /* 当前激活的目录项 */
 .toc-list li.active a {
-  color: #4A90E2; /* 你的主题蓝色 */
-  border-left-color: #4A90E2;
-  font-weight: bold;
+  color: #ff6b9d;
+  background: linear-gradient(90deg, rgba(255, 182, 193, 0.2), rgba(192, 132, 252, 0.1));
+  border-left-color: #ff6b9d;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(255, 107, 157, 0.15);
 }
 
 /* --- 右侧正文样式 --- */
 .article-wrapper {
-  flex: 1; /* 占据剩余空间 */
-  background: #fff;
-  padding: 40px 60px;
-  border-radius: 8px;
-  min-height: calc(100vh - 140px);
-  box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+  flex: 1;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(10px);
+  padding: 48px 64px;
+  border-radius: 20px;
+  min-height: calc(100vh - 160px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.8);
 }
 
 .article-header {
-  margin-bottom: 40px;
-  padding-bottom: 20px;
-  border-bottom: 1px solid #eee;
+  margin-bottom: 48px;
+  padding-bottom: 28px;
+  border-bottom: 2px solid rgba(255, 182, 193, 0.2);
+  position: relative;
+}
+
+.article-header::after {
+  content: '✿ ✿ ✿';
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #fff;
+  padding: 0 16px;
+  color: #ffb6c1;
+  font-size: 0.8rem;
+  letter-spacing: 4px;
 }
 
 .article-title {
-  font-size: 2.2rem;
-  font-weight: bold;
-  color: #222;
-  margin-bottom: 10px;
+  font-size: 2.4rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, #333, #555);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 12px;
+  line-height: 1.3;
 }
 
 .article-meta {
-  color: #888;
+  color: #999;
   font-size: 0.9rem;
+  font-style: italic;
 }
 
-/* --- 响应式处理 (手机端隐藏目录) --- */
+/* --- 响应式处理 --- */
 @media (max-width: 1024px) {
   .toc-aside {
     display: none;
   }
   .article-wrapper {
-    padding: 20px;
+    padding: 24px;
+    border-radius: 16px;
+  }
+  .main-container {
+    padding: 20px 24px;
   }
 }
 </style>
