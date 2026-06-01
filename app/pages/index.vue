@@ -25,16 +25,13 @@
     <div class="container">
       <h2>博客文章</h2>
       
-      <div class="post-list">
-        <div class="post-item">
-          <h3>我的第一篇博客</h3>
-          <p>这是摘要内容...</p>
-        </div>
-        <div class="post-item">
-          <h3>Vue3 学习笔记</h3>
-          <p>关于 Composition API 的思考...</p>
-        </div>
-      </div>
+    <div class="post-item">
+      <!-- 使用 NuxtLink 进行路由跳转，to="/blog/文件名" -->
+      <nuxt-link to="/blog/my-first-post">
+        <h3>我的第一篇博客</h3>
+        <p>这是摘要内容...</p>
+      </nuxt-link>
+    </div>
     </div>
   </div>
 </template>
@@ -58,7 +55,7 @@ html, body {
 /* background: linear-gradient(25deg, #89CFF0 0%, #A2D2FF 30%, #FFF9C4 100%); */
 /* background: linear-gradient(25deg, #4A90E2 0%, #89CFF0 50%, #FFF9C4 100%); */
 /* background: linear-gradient(25deg, #A1C4FD 0%, #C2E9FB 50%, #FFF5E1 100%); */
-background: linear-gradient(30deg, #4A90E2 0%, #89CFF0 60%, #ffffff 100%);
+background: linear-gradient(28deg, #5395df 0%, #89CFF0 40%, #ffffff 100%);
 }
 </style>
 
