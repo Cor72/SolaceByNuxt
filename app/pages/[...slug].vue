@@ -2,18 +2,16 @@
   <!-- 1. 根容器：负责全屏背景图 -->
   <div class="blog-root">
     
-    <!-- 1.1 背景图层 -->
+    <!-- 1.1 背景图层 (引用 public/top/pageground.jpg) -->
     <div class="background-layer"></div>
 
-    <!-- 1.2 顶部导航栏 (悬浮fixed) -->
+    <!-- 1.2 顶部导航栏 -->
     <header class="top-nav" :class="{ 'nav-hidden': isNavHidden }">
       <div class="nav-inner">
-        <!-- 左侧Logo+标题 -->
         <div class="nav-brand">
           <img src="/top/topground.jpg" alt="Logo" class="nav-avatar" />
           <span class="nav-title">A Cup of Tea</span>
         </div>
-        <!-- 右侧链接 -->
         <div class="nav-actions">
           <nuxt-link to="/" class="nav-link">返回首页</nuxt-link>
         </div>
@@ -22,8 +20,7 @@
 
     <!-- 1.3 主体内容区 -->
     <div class="main-container">
-      
-      <!-- 左侧：目录 (sticky定位) -->
+      <!-- 左侧：目录 -->
       <aside class="sidebar-toc">
         <div class="toc-header">✿ 目录</div>
         <ul class="toc-list">
@@ -39,7 +36,6 @@
 
       <!-- 右侧：文章内容 -->
       <main class="article-container">
-        <!-- 文章头部 -->
         <header class="article-header">
           <h1 class="post-title">{{ article?.title }}</h1>
           <div class="post-meta">
@@ -47,20 +43,24 @@
           </div>
         </header>
 
-        <!-- 文章正文 (Tailwind Prose) -->
         <article class="post-content prose">
           <ContentRenderer :value="article" />
         </article>
         
-        <!-- 文章底部 -->
         <footer class="post-footer">
           <div class="decor-line"></div>
           <p>感谢阅读 ✿</p>
         </footer>
       </main>
-      
     </div>
+
   </div>
+    <!-- 测试圆：纯黑圆形 -->
+    <div class="test-circle" @click="scrollToTop">
+      <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="18 15 12 9 6 15"></polyline>
+      </svg>
+    </div>
 </template>
 
 <script setup>
@@ -86,34 +86,44 @@ const toc = computed(() => {
 // --- 滚动交互逻辑 ---
 const isNavHidden = ref(false)
 const activeId = ref('')
+const showBackTop = ref(false) // 控制返回顶部按钮显隐
 let lastScrollY = 0
 
 const handleScroll = () => {
   const currentScrollY = window.scrollY
 
-  // 1. 导航栏显隐逻辑 (向下滚动隐藏，向上滚动显示)
+  // 1. 导航栏显隐逻辑
   if (currentScrollY > lastScrollY && currentScrollY > 80) {
     isNavHidden.value = true
   } else {
     isNavHidden.value = false
   }
-  lastScrollY = currentScrollY
-
-  // 2. 目录高亮逻辑
-  const headings = document.querySelectorAll('article h2, article h3') // 一般只关注h2, h3
-  let current = ''
   
+  // 2. 返回顶部按钮显隐逻辑 (滚动超过300px显示)
+  showBackTop.value = currentScrollY > 300
+
+  // 3. 目录高亮逻辑
+  const headings = document.querySelectorAll('article h2, article h3')
+  let current = ''
   headings.forEach(heading => {
-    // 如果标题距离视口顶部小于 150px
     if (heading.getBoundingClientRect().top <= 150) {
       current = heading.getAttribute('id')
     }
   })
   activeId.value = current
+  
+  lastScrollY = currentScrollY
+}
+
+// 返回顶部方法
+const scrollToTop = () => {
+  document.documentElement.scrollTop = 0
+  document.body.scrollTop = 0
 }
 
 onMounted(() => {
   window.addEventListener('scroll', handleScroll, { passive: true })
+  handleScroll()
 })
 onUnmounted(() => {
   window.removeEventListener('scroll', handleScroll)
@@ -126,23 +136,20 @@ onUnmounted(() => {
   position: relative;
   min-height: 100vh;
   width: 100%;
+  isolation: isolate;
 }
 
 .background-layer {
-  position: fixed; /* 固定不动 */
+  position: fixed; 
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background-image: url('/top/pageground.jpg');
+  background-image: url('/top/pageground.jpg'); 
   background-size: cover;
   background-position: center;
-  background-attachment: fixed;
-  z-index: -1; /* 置于最底层 */
-  
-  /* 可选：加一点点蒙版，让文字更清晰 */
-  background-color: rgba(255, 255, 255, 0.1);
-  background-blend-mode: overlay;
+  background-repeat: no-repeat;
+  z-index: 0;
 }
 
 /* ==================== 2. 顶部导航栏 ==================== */
@@ -152,15 +159,11 @@ onUnmounted(() => {
   left: 0;
   width: 100%;
   height: 60px;
-  z-index: 999; /* 比内容区高 */
-  
-  /* 毛玻璃效果 */
+  z-index: 999;
   background: rgba(255, 255, 255, 0.75);
   backdrop-filter: blur(12px);
   border-bottom: 1px solid rgba(255, 182, 193, 0.3);
   box-shadow: 0 2px 20px rgba(255, 182, 193, 0.2);
-  
-  /* 动画过渡 */
   transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -169,7 +172,7 @@ onUnmounted(() => {
 }
 
 .nav-inner {
-  max-width: 1200px; /* 控制宽度与下方内容对齐 */
+  max-width: 1200px;
   height: 100%;
   margin: 0 auto;
   padding: 0 40px;
@@ -216,27 +219,23 @@ onUnmounted(() => {
 
 /* ==================== 3. 主体内容布局 ==================== */
 .main-container {
-  padding-top: 80px; /* 给导航栏留出空间 */
+  padding-top: 80px; 
   padding-bottom: 60px;
   display: flex;
   max-width: 1200px;
   margin: 0 auto;
   padding-left: 20px;
   padding-right: 20px;
-  gap: 30px; /* 目录和正文的间距 */
+  gap: 30px; 
 }
 
 /* ==================== 4. 左侧目录 ==================== */
 .sidebar-toc {
   width: 240px;
   flex-shrink: 0;
-  
-  /* Sticky 定位：跟随滚动 */
   position: sticky;
-  top: 100px; /* 距离顶部留出导航栏高度 */
+  top: 100px;
   height: fit-content;
-  
-  /* 样式 */
   background: rgba(255, 255, 255, 0.85);
   backdrop-filter: blur(10px);
   padding: 20px;
@@ -281,7 +280,6 @@ onUnmounted(() => {
   transform: translateX(4px);
 }
 
-/* 当前激活项 */
 .toc-list li.is-active a {
   background: rgba(255, 182, 193, 0.2);
   color: #ff6b9d;
@@ -292,8 +290,7 @@ onUnmounted(() => {
 /* ==================== 5. 右侧正文 ==================== */
 .article-container {
   flex: 1;
-  min-width: 0; /* 防止flex溢出 */
-  
+  min-width: 0; 
   background: rgba(255, 255, 255, 0.92);
   backdrop-filter: blur(10px);
   padding: 48px 56px;
@@ -327,36 +324,19 @@ onUnmounted(() => {
   color: #333;
 }
 
-/* Markdown 细节美化 (配合 Prose) */
 .post-content :deep(h2) {
   border-left: 5px solid #ff6b9d;
   padding-left: 15px;
   margin-top: 2.5rem;
 }
-.post-content :deep(p) {
-  margin-bottom: 1.25rem;
-}
-.post-content :deep(img) {
-  border-radius: 8px;
-  margin: 1rem 0;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-}
-.post-content :deep(a) {
-  color: #ff6b9d;
-  text-decoration: none;
-  border-bottom: 1px dashed #ff6b9d;
-}
-.post-content :deep(a):hover {
-  color: #ff85ad;
-}
 
-/* 底部装饰 */
 .post-footer {
   margin-top: 60px;
   text-align: center;
   color: #ccc;
   font-size: 0.9rem;
 }
+
 .decor-line {
   width: 50px;
   height: 3px;
@@ -365,16 +345,42 @@ onUnmounted(() => {
   border-radius: 2px;
 }
 
-/* ==================== 6. 响应式 ==================== */
+/* ==================== 6. 测试圆 ==================== */
+.test-circle {
+  position: fixed;
+  bottom: 60px;
+  right: 60px;
+  width: 50px;
+  height: 50px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 50%;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(255, 182, 193, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ff6b9d;
+  cursor: pointer;
+  z-index: 9999;
+}
+
+/* ==================== 7. 响应式 ==================== */
 @media (max-width: 1024px) {
   .sidebar-toc {
-    display: none; /* 平板/手机隐藏目录 */
+    display: none; 
   }
   .article-container {
     padding: 30px 24px;
   }
   .nav-inner {
     padding: 0 20px;
+  }
+  /* 手机端返回顶部按钮稍微小一点 */
+  .back-to-top-btn {
+    width: 45px;
+    height: 45px;
+    bottom: 20px;
+    right: 20px;
   }
 }
 </style>
