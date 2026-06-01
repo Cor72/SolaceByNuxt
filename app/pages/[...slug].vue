@@ -1,21 +1,5 @@
 <template>
   <div class="blog-layout">
-    
-    <!-- ==================== 1. 顶部导航栏 ==================== -->
-    <!-- 添加 head-hidden 类来控制隐藏 -->
-    <!-- <header class="top-nav" :class="{ 'head-hidden': !isHeaderVisible }">
-      <div class="nav-inner">
-        <div class="nav-content">
-          <span class="nav-title">A Cup of Tea</span>
-        </div>
-
-        <div class="nav-links">
-          <nuxt-link to="/">返回首页</nuxt-link>
-        </div>
-      </div>
-    </header> -->
-
-    <!-- ==================== 2. 主体区域 ==================== -->
     <div class="main-container">
       
       <!-- 左侧：目录 -->
@@ -68,7 +52,6 @@ const toc = computed(() => {
   return article.value?.body?.toc?.links || []
 })
 
-const isHeaderVisible = ref(true)
 const activeId = ref('')
 let lastScrollY = 0
 let ticking = false
@@ -79,12 +62,6 @@ const handleScroll = () => {
 
   requestAnimationFrame(() => {
     const currentScrollY = window.scrollY
-
-    if (currentScrollY > 100 && currentScrollY > lastScrollY + 5) {
-      isHeaderVisible.value = false
-    } else if (currentScrollY < lastScrollY - 5) {
-      isHeaderVisible.value = true
-    }
     lastScrollY = currentScrollY
 
     const headings = document.querySelectorAll('article h1, article h2, article h3')
@@ -126,29 +103,6 @@ onUnmounted(() => {
   z-index: 1;
 }
 
-/* --- 1. 顶部导航栏样式 --- */
-.top-nav {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 60px;
-  background: linear-gradient(135deg, rgba(255, 182, 193, 0.95), rgba(173, 216, 230, 0.95));
-  backdrop-filter: blur(15px);
-  border-bottom: none;
-  box-shadow: 0 2px 20px rgba(255, 182, 193, 0.3);
-  z-index: 1000;
-  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  display: flex;
-  align-items: center;
-  padding: 0 40px;
-}
-
-/* 隐藏状态：向上移动自身高度 */
-.top-nav.head-hidden {
-  transform: translateY(-100%);
-}
-
 .nav-inner {
   width: 100%;
   max-width: 1400px;
@@ -168,12 +122,6 @@ onUnmounted(() => {
   font-size: 1.2rem;
   font-weight: bold;
   color: #333;
-}
-
-.nav-links a {
-  color: #666;
-  text-decoration: none;
-  font-size: 0.9rem;
 }
 
 /* --- 2. 主体布局样式 --- */
