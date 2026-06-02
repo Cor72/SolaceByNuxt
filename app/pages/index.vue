@@ -34,6 +34,9 @@
     </div>
     </div>
   </div>
+
+  <!-- Live2D 角色 -->
+  <Live2DCanvas />
 </template>
 
 <script setup lang="ts">

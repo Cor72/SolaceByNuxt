@@ -12,6 +12,8 @@
     "@nuxt/content": "^3.14.0",
     "better-sqlite3": "^12.10.0",
     "nuxt": "^4.4.6",
+    "pixi-live2d-display": "^0.4.0",
+    "pixi.js": "^6.4.2",
     "vue": "^3.5.34",
     "vue-router": "^5.0.7"
   },

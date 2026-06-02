@@ -55,12 +55,15 @@
     </div>
 
   </div>
-    <!-- 测试圆：纯黑圆形 -->
+    <!-- 返回顶部 -->
     <div class="test-circle" @click="scrollToTop">
       <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
         <polyline points="18 15 12 9 6 15"></polyline>
       </svg>
     </div>
+
+    <!-- Live2D 角色 -->
+    <Live2DCanvas />
 </template>
 
 <script setup>
@@ -86,23 +89,20 @@ const toc = computed(() => {
 // --- 滚动交互逻辑 ---
 const isNavHidden = ref(false)
 const activeId = ref('')
-const showBackTop = ref(false) // 控制返回顶部按钮显隐
+const showBackTop = ref(false)
 let lastScrollY = 0
 
 const handleScroll = () => {
   const currentScrollY = window.scrollY
 
-  // 1. 导航栏显隐逻辑
   if (currentScrollY > lastScrollY && currentScrollY > 80) {
     isNavHidden.value = true
   } else {
     isNavHidden.value = false
   }
-  
-  // 2. 返回顶部按钮显隐逻辑 (滚动超过300px显示)
+
   showBackTop.value = currentScrollY > 300
 
-  // 3. 目录高亮逻辑
   const headings = document.querySelectorAll('article h2, article h3')
   let current = ''
   headings.forEach(heading => {
@@ -111,11 +111,10 @@ const handleScroll = () => {
     }
   })
   activeId.value = current
-  
+
   lastScrollY = currentScrollY
 }
 
-// 返回顶部方法
 const scrollToTop = () => {
   document.documentElement.scrollTop = 0
   document.body.scrollTop = 0
@@ -125,6 +124,7 @@ onMounted(() => {
   window.addEventListener('scroll', handleScroll, { passive: true })
   handleScroll()
 })
+
 onUnmounted(() => {
   window.removeEventListener('scroll', handleScroll)
 })
