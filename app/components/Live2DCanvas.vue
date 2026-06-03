@@ -20,24 +20,70 @@ const visible = ref(true)
 let app = null
 let model = null
 
+// 可用表情列表（对应 model3.json 中的 Expressions）
+const expressions = ['smile', 'squint', 'tears', 'teardrop']
+let expressionTimer = null
+
 /**
- * 模型拖拽方法
+ * 绑定模型交互：拖拽 + 点击触发表情
  */
-function draggable(m) {
+function bindInteraction(m) {
   m.buttonMode = true
+
+  // 记录 pointerdown 位置，用于区分点击和拖拽
+  let startX = 0
+  let startY = 0
+  let isDragging = false
+
   m.on('pointerdown', (e) => {
+    isDragging = false
+    startX = e.data.global.x
+    startY = e.data.global.y
     m.dragging = true
     m._pointerX = e.data.global.x - m.x
     m._pointerY = e.data.global.y - m.y
   })
+
   m.on('pointermove', (e) => {
     if (m.dragging) {
+      const dx = e.data.global.x - startX
+      const dy = e.data.global.y - startY
+      // 移动超过 5px 视为拖拽
+      if (Math.abs(dx) > 5 || Math.abs(dy) > 5) {
+        isDragging = false
+      }
       m.position.x = e.data.global.x - m._pointerX
       m.position.y = e.data.global.y - m._pointerY
     }
   })
-  m.on('pointerupoutside', () => (m.dragging = false))
-  m.on('pointerup', () => (m.dragging = false))
+
+  m.on('pointerup', () => {
+    m.dragging = false
+    // 没有明显拖拽 → 视为点击 → 触发随机表情
+    if (!isDragging) {
+      triggerRandomExpression(m)
+    }
+  })
+
+  m.on('pointerupoutside', () => {
+    m.dragging = false
+  })
+}
+
+/**
+ * 触发随机表情，3秒后恢复默认
+ */
+function triggerRandomExpression(m) {
+  // 清除上一次的定时器
+  if (expressionTimer) clearTimeout(expressionTimer)
+
+  const name = expressions[Math.floor(Math.random() * expressions.length)]
+  m.expression(name)
+
+  // 2秒后恢复默认表情
+  expressionTimer = setTimeout(() => {
+    m.expression()
+  }, 2000)
 }
 
 /**
@@ -50,7 +96,6 @@ async function loadModel() {
   const width = canvas.parentElement.offsetWidth
   const height = canvas.parentElement.offsetHeight
 
-  // 如果 app 已存在，先清除舞台上的旧模型
   if (model) {
     app.stage.removeChild(model)
     model.destroy()
@@ -66,7 +111,7 @@ async function loadModel() {
     model.y = (height - model.height * scale) / 2
 
     app.stage.addChild(model)
-    draggable(model)
+    bindInteraction(model)
   } catch (error) {
     console.error('模型加载失败:', error)
   }
@@ -81,7 +126,6 @@ async function toggle() {
     await nextTick()
     await loadModel()
   } else {
-    // 隐藏时销毁模型释放资源
     if (model) {
       app.stage.removeChild(model)
       model.destroy()
@@ -111,6 +155,7 @@ onMounted(async () => {
 })
 
 onUnmounted(() => {
+  if (expressionTimer) clearTimeout(expressionTimer)
   model?.destroy()
   app?.destroy(true, { children: true })
 })
