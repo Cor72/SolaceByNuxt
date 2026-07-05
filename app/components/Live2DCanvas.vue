@@ -159,6 +159,15 @@ onUnmounted(() => {
   model?.destroy()
   app?.destroy(true, { children: true })
 })
+
+// const mouthFn = () => {
+//   setInterval(() => {
+//     let n = Math.random();
+//     console.log("随机数0~1控制嘴巴Y轴高度-->", n);
+//     model.internalModel.coreModel.setParameterValueById("ParamMouthOpenY", n);
+//   }, 100);
+// };
+
 </script>
 
 <style scoped>
