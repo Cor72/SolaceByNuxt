@@ -10,15 +10,6 @@
       <p class="subtitle">Loved by Cor72</p>
     </div>
 
-    <!-- 4. 底部的向下箭头 -->
-    <div class="scroll-down-hint" @click="scrollToContent">
-  <div class="arrow-icon">
-    <svg viewBox="0 0 24 24" width="50" height="50" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
-      <polyline points="6 9 12 15 18 9"></polyline>
-    </svg>
-  </div>
-    </div>
-  </div>
 
   <!-- ==================== 第二部分：博客/导航内容 ==================== -->
   <div class="content-section" ref="contentArea">
@@ -42,9 +33,9 @@
 <script setup lang="ts">
 const contentArea = ref<HTMLElement | null>(null);
 
-const scrollToContent = () => {
-  contentArea.value?.scrollIntoView({ behavior: 'smooth' });
-};
+// const scrollToContent = () => {
+//   contentArea.value?.scrollIntoView({ behavior: 'smooth' });
+// };
 </script>
 
 <!-- 全局样式：只写一次，用于重置和设置网页底色 -->
