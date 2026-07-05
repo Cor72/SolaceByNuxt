@@ -9,7 +9,7 @@
       <h1 class="title">A cup of Tea</h1>
       <p class="subtitle">Loved by Cor72</p>
     </div>
-
+  </div>
 
   <!-- ==================== 第二部分：博客/导航内容 ==================== -->
   <div class="content-section" ref="contentArea">
