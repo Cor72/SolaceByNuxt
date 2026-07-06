@@ -14,18 +14,11 @@
   </Transition>
 
   <!-- ==================== 第二部分：博客/导航内容 ==================== -->
-  <div class="content-section" ref="contentArea">
-    <div class="container">
-      <h2>博客文章</h2>
-      
-    <div class="post-item">
-      <!-- 使用 NuxtLink 进行路由跳转，to="/blog/文件名" -->
-      <nuxt-link to="/blog/my-first-post">
-        <h3>我的第一篇博客</h3>
-        <p>这是摘要内容...</p>
-      </nuxt-link>
-    </div>
-    </div>
+  <div class="background-section">
+    <!-- 壁纸背景 -->
+    <img src="/Background/1.jpg" class="bg-image" alt="background" />
+    <!-- 灰色遮罩 -->
+    <div class="bg-overlay"></div>
   </div>
 
   <!-- Live2D 角色 -->
@@ -100,5 +93,34 @@ html, body {
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+/* 壁纸背景样式 */
+.background-section {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+}
+
+.background-section .bg-image {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.background-section .bg-overlay {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-image: radial-gradient(rgba(0, 0, 0, 0) 0, rgba(0, 0, 0, 0.5) 100%),
+    radial-gradient(rgba(0, 0, 0, 0) 33%, rgba(0, 0, 0, 0.3) 166%);
 }
 </style>
