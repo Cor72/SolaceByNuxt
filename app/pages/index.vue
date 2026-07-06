@@ -21,14 +21,40 @@
     <div class="bg-overlay"></div>
   </div>
 
+  <!-- 实时时钟 -->
+  <div class="clock">
+    <div class="time">{{ currentTime }}</div>
+    <div class="text">Do What You Love </div>
+  </div>
+
   <!-- Live2D 角色 -->
   <!-- <Live2DCanvas /> -->
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 
 const showCover = ref(true)
+const currentTime = ref('00:00:00')
+
+let timer: number | undefined
+
+const updateTime = () => {
+  const now = new Date()
+  const h = String(now.getHours()).padStart(2, '0')
+  const m = String(now.getMinutes()).padStart(2, '0')
+  const s = String(now.getSeconds()).padStart(2, '0')
+  currentTime.value = `${h}:${m}:${s}`
+}
+
+onMounted(() => {
+  updateTime()
+  timer = window.setInterval(updateTime, 1000)
+})
+
+onUnmounted(() => {
+  if (timer) window.clearInterval(timer)
+})
 </script>
 
 <style>
@@ -77,8 +103,6 @@ html, body {
   transform: translate(-50%, -50%);
   text-align: center;
   color: white;
-  /* letter-spacing: 0.05em; */
-  /* font-size: 1.3em; */
   z-index: 1002;
 }
 .cover-content .title {
@@ -123,4 +147,34 @@ html, body {
   background-image: radial-gradient(rgba(0, 0, 0, 0) 0, rgba(0, 0, 0, 0.5) 100%),
     radial-gradient(rgba(0, 0, 0, 0) 33%, rgba(0, 0, 0, 0.3) 166%);
 }
+
+/* 实时时钟样式 */
+.clock {
+  position: absolute;
+  top: 23%;
+  left: 52%;
+  transform: translate(-50%, -50%);
+  z-index: 10;
+  user-select: none;
+  pointer-events: none;
+  white-space: nowrap;
+}
+.clock .time {
+  color: rgba(255, 255, 255, 0.85);
+  font-family: "Helvetica Neue", "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-weight: 100;
+  font-size: clamp(3rem, 8vw, 6rem);
+  letter-spacing: 0.05em;
+  font-variant-numeric: tabular-nums; /* 等宽数字，避免跳动 */
+  text-shadow: 0 2px 24px rgba(0, 0, 0, 0.35);
+}
+.clock .text {
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 24px;
+  text-align: center;
+  letter-spacing: 0.05em;
+}
+
+
+
 </style>
